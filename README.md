@@ -10,4 +10,4 @@ Basic samples to deploy/integrate WampSharp into your apps
 For more information:
 - WAMP (Web Application Messaging Protocol) - http://wamp-proto.org/
 - WampSharp (A C# implementation of WAMP) - https://github.com/Code-Sharp/WampSharp
-- VIEApps WAMP Router (The tiny WAMP Router can run as Windows service of desktop app) - https://github.com/vieapps/Utility.WAMPRouter
+- VIEApps WAMP Router (The tiny WAMP Router - able to run as a Windows service/desktop app) - https://github.com/vieapps/Utility.WAMPRouter
