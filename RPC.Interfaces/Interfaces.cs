@@ -3,7 +3,7 @@ using WampSharp.V2.Rpc;
 
 namespace net.vieapps.TestLabs.WAMP
 {
-	public interface StaticUriRPC
+	public interface IStaticUriRPC
 	{
 		[WampProcedure("net.vieapps.testlabs.rpc.static.hello")]
 		Task<string> SayHelloAsync();
@@ -12,9 +12,21 @@ namespace net.vieapps.TestLabs.WAMP
 		Task<string> SayGoodbyeAsync();
 	}
 
-	public interface DynamicUriRPC
+	public interface IDynamicUriRPC
 	{
 		[WampProcedure("net.vieapps.testlabs.rpc.dynamic.{0}")]
+		Task<string> DoSomethingAsync();
+	}
+
+	public interface IEmptyMicroService
+	{
+		[WampProcedure("net.vieapps.testlabs.services.empty")]
+		Task<string> DoSomethingAsync();
+	}
+
+	public interface IErrorMicroService
+	{
+		[WampProcedure("net.vieapps.testlabs.services.error")]
 		Task<string> DoSomethingAsync();
 	}
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Configuration;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net;
+using System.Net.Sockets;
 
 using WampSharp.V2;
 using WampSharp.V2.Rpc;
@@ -45,11 +48,13 @@ namespace net.vieapps.TestLabs.WAMP
 
 				await channel.RealmProxy.Services.RegisterCallee(new StaticUri(), options);
 
+				await channel.RealmProxy.Services.RegisterCallee(new ErrorService(), options);
+
 				await channel.RealmProxy.Services.RegisterCallee(new DynamicUri1(), options);
 
 				await channel.RealmProxy.Services.RegisterCallee(new DynamicUri2(), options);
 
-				Console.WriteLine("RPC method is registered...");
+				Console.WriteLine("RPC methods are registered...");
 				Console.WriteLine("");
 				Console.WriteLine("Wait for the calls.........");
 
@@ -62,42 +67,81 @@ namespace net.vieapps.TestLabs.WAMP
 			while (true) { }
 		}
 
-		public class StaticUri : StaticUriRPC
+		static string ip = null;
+		static string pid = null;
+
+		static string GetInfo()
+		{
+			if (string.IsNullOrWhiteSpace(ip))
+			{
+				var host = Dns.GetHostEntry(Dns.GetHostName());
+				foreach (var address in host.AddressList)
+					if (address.AddressFamily == AddressFamily.InterNetwork)
+					{
+						ip = address.ToString();
+						break;
+					}
+			}
+
+			if (string.IsNullOrWhiteSpace(pid))
+				pid = Process.GetCurrentProcess().Id.ToString();
+
+			return "(PID: " + pid + " - IP: " + ip + " - " + DateTime.Now.ToString("HH:mm:ss") + ")";
+		}
+
+		public class StaticUri : IStaticUriRPC
 		{
 			public Task<string> SayHelloAsync()
 			{
-				var say = "HELLO from callee --> PID: " + Process.GetCurrentProcess().Id.ToString() + " [" + DateTime.Now.ToString("HH:mm:ss") + "]";
+				var say = "HELLO from callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
 				return Task.FromResult(say);
 			}
 
 			public Task<string> SayGoodbyeAsync()
 			{
-				var say = "GOODBYE from callee --> PID: " + Process.GetCurrentProcess().Id.ToString() + " [" + DateTime.Now.ToString("HH:mm:ss") + "]";
+				var say = "GOODBYE from callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
 				return Task.FromResult(say);
 			}
 		}
 
-		public class DynamicUri1 : DynamicUriRPC
+		public class DynamicUri1 : IDynamicUriRPC
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.1")]
 			public Task<string> DoSomethingAsync()
 			{
-				var say = "DYNAMIC (1) callee --> PID: " + Process.GetCurrentProcess().Id.ToString() + " [" + DateTime.Now.ToString("HH:mm:ss") + "]";
+				var say = "DYNAMIC (1) callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
 				return Task.FromResult(say);
 			}
 		}
 
-		public class DynamicUri2 : DynamicUriRPC
+		public class DynamicUri2 : IDynamicUriRPC
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.2")]
 			public Task<string> DoSomethingAsync()
 			{
-				var say = "DYNAMIC [2] callee --> PID: " + Process.GetCurrentProcess().Id.ToString() + " [" + DateTime.Now.ToString("HH:mm:ss") + "]";
+				var say = "DYNAMIC [2] callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
 				return Task.FromResult(say);
+			}
+		}
+
+		public class ErrorService: IErrorMicroService
+		{
+			[WampProcedure("net.vieapps.testlabs.services.error")]
+			public Task<string> DoSomethingAsync()
+			{
+				Console.WriteLine("Got one call of ErrSvc --> " + GetInfo());
+
+				var details = new Dictionary<string, object>();
+				var arguments = new Dictionary<string, object>();
+				var argumentKeywords = new Dictionary<string, object>();
+				var message = "Error at RPC";
+				var ex = new ApplicationException("Nothing to lose!!!!!");
+
+				return Task.FromException<string>(new WampRpcRuntimeException(details, arguments, argumentKeywords, message, new Exception("Got an error", ex)));
 			}
 		}
 

@@ -2,9 +2,13 @@
 using System.Configuration;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Linq;
+
+using Newtonsoft.Json.Linq;
 
 using WampSharp.V2;
 using WampSharp.V2.Core.Contracts;
+
 
 namespace net.vieapps.TestLabs.WAMP
 {
@@ -49,7 +53,7 @@ namespace net.vieapps.TestLabs.WAMP
 						await DoSomethingAsync();
 					}).ConfigureAwait(false);
 
-				else if (theKey >= 48 && theKey <= 53)
+				else if (theKey >= 49 && theKey <= 53)
 					Task.Run(async () =>
 					{
 						await DoSomethingAsync(1);
@@ -59,6 +63,18 @@ namespace net.vieapps.TestLabs.WAMP
 					Task.Run(async () =>
 					{
 						await DoSomethingAsync(2);
+					}).ConfigureAwait(false);
+
+				else if (theKey == 96)
+					Task.Run(async () =>
+					{
+						await DoEmptyServiceActionAsync();
+					}).ConfigureAwait(false);
+
+				else if (theKey == 48)
+					Task.Run(async () =>
+					{
+						await DoErrorServiceActionAsync();
 					}).ConfigureAwait(false);
 
 				else
@@ -91,28 +107,98 @@ namespace net.vieapps.TestLabs.WAMP
 			await Program.Channel.Open();
 		}
 
-		static StaticUriRPC Static = null;
+		static IEmptyMicroService EmptyService = null;
+
+		static async Task DoEmptyServiceActionAsync()
+		{
+			try
+			{
+				if (EmptyService == null)
+					EmptyService = Channel.RealmProxy.Services.GetCalleeProxy<IEmptyMicroService>();
+
+				var val = await EmptyService.DoSomethingAsync();
+				Console.WriteLine(" Microservice: -> " + val);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+			}
+		}
+
+		static IErrorMicroService ErrorService = null;
+
+		static async Task DoErrorServiceActionAsync()
+		{
+			try
+			{
+				if (ErrorService == null)
+					ErrorService = Channel.RealmProxy.Services.GetCalleeProxy<IErrorMicroService>();
+
+				var val = await ErrorService.DoSomethingAsync();
+				Console.WriteLine(" Error Microservice: -> " + val);
+			}
+			catch (WampException ex)
+			{
+				var type = ex.GetType();
+				var msg = ex.Message;
+				var uri = ex.ErrorUri;
+				var json = "";
+				foreach (var info in ex.Arguments)
+					json += info is JObject && (info as JObject).Count > 0
+						? (info as JObject).ToString(Newtonsoft.Json.Formatting.Indented) + "\r\n"
+						: "";
+				Console.WriteLine("Error occurred while processing with remote Wamp RPC: " + msg + " [" + uri +  type.ToString() + "]" + "\r\n\r\n" + json);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString() + "]" + "\r\n\r\n" + ex.StackTrace);
+				var exception = ex.InnerException;
+				var counter = 0;
+				while (exception != null)
+				{
+					counter++;
+					Console.WriteLine("Inner (" + counter + "): " + exception.Message + " [" + exception.GetType().ToString() + "]" + "\r\n\r\n" + exception.StackTrace);
+					exception = exception.InnerException;
+				}
+			}
+		}
+
+		static IStaticUriRPC Static = null;
 
 		static async Task SayHelloAsync()
 		{
-			if (Static == null)
-				Static = Channel.RealmProxy.Services.GetCalleeProxy<StaticUriRPC>();
+			try
+			{
+				if (Static == null)
+					Static = Channel.RealmProxy.Services.GetCalleeProxy<IStaticUriRPC>();
 
-			var hello = await Static.SayHelloAsync();
-			Console.WriteLine(" -> " + hello);
+				var hello = await Static.SayHelloAsync();
+				Console.WriteLine(" -> " + hello);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+			}
 		}
 
 		static async Task SayGoodbyeAsync()
 		{
-			if (Static == null)
-				Static = Channel.RealmProxy.Services.GetCalleeProxy<StaticUriRPC>();
+			try
+			{
+				if (Static == null)
+					Static = Channel.RealmProxy.Services.GetCalleeProxy<IStaticUriRPC>();
 
-			var hello = await Static.SayGoodbyeAsync();
-			Console.WriteLine(" -> " + hello);
-			await Task.Delay(567);
+				var hello = await Static.SayGoodbyeAsync();
+				Console.WriteLine(" -> " + hello);
+				await Task.Delay(567);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+			}
 		}
 
-		static DynamicUriRPC Dynamic1 = null, Dynamic2 = null;
+		static IDynamicUriRPC Dynamic1 = null, Dynamic2 = null;
 		static Random Rnd = new Random();
 
 		static async Task DoSomethingAsync(int number = 0)
@@ -122,19 +208,29 @@ namespace net.vieapps.TestLabs.WAMP
 				: number;
 
 			if (number == 1)
-			{
-				if (Dynamic1 == null)
-					Dynamic1 = Channel.RealmProxy.Services.GetCalleeProxy<DynamicUriRPC>(new DynamicCalleeProxyInterceptor("1"));
-				var smt = await Dynamic1.DoSomethingAsync();
-				Console.WriteLine("-> " + smt);
-			}
+				try
+				{
+					if (Dynamic1 == null)
+						Dynamic1 = Channel.RealmProxy.Services.GetCalleeProxy<IDynamicUriRPC>(new DynamicCalleeProxyInterceptor("1"));
+					var smt = await Dynamic1.DoSomethingAsync();
+					Console.WriteLine("-> " + smt);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+				}
 			else
-			{
-				if (Dynamic2 == null)
-					Dynamic2 = Channel.RealmProxy.Services.GetCalleeProxy<DynamicUriRPC>(new DynamicCalleeProxyInterceptor("2"));
-				var smt = await Dynamic2.DoSomethingAsync();
-				Console.WriteLine("-> " + smt);
-			}
+				try
+				{
+					if (Dynamic2 == null)
+						Dynamic2 = Channel.RealmProxy.Services.GetCalleeProxy<IDynamicUriRPC>(new DynamicCalleeProxyInterceptor("2"));
+					var smt = await Dynamic2.DoSomethingAsync();
+					Console.WriteLine("-> " + smt);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+				}
 		}
 
 		public class DynamicCalleeProxyInterceptor : CalleeProxyInterceptor
