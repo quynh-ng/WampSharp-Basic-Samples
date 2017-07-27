@@ -26,7 +26,7 @@ namespace net.vieapps.TestLabs.WAMP
 
 				Console.WriteLine("Attempt to connect to " + endpoint + realm);
 
-				channel = (new DefaultWampChannelFactory()).CreateJsonChannel(endpoint, realm);
+				channel = (new DefaultWampChannelFactory()).CreateMsgpackChannel(endpoint, realm);
 				channel.RealmProxy.Monitor.ConnectionEstablished += (sender, arguments) =>
 				{
 					Console.WriteLine("Connection is established - Session ID:" + arguments.SessionId.ToString());
@@ -50,7 +50,7 @@ namespace net.vieapps.TestLabs.WAMP
 				subscriber = channel.RealmProxy.Services.GetSubject<string>(topicURI)
 					.Subscribe(msg =>
 					{
-						Console.WriteLine(msg + "\r\n");
+						Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " >> " + msg + "\r\n");
 					});
 			});
 
