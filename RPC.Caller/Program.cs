@@ -97,7 +97,7 @@ namespace net.vieapps.TestLabs.WAMP
 
 			Console.WriteLine("Attempt to connect to " + endpoint + realm);
 
-			Channel = (new DefaultWampChannelFactory()).CreateJsonChannel(endpoint, realm);
+			Channel = (new DefaultWampChannelFactory()).CreateMsgpackChannel(endpoint, realm);
 			Channel.RealmProxy.Monitor.ConnectionEstablished += (sender, args) => {
 				Console.WriteLine("Connection is established - Session ID:" + args.SessionId.ToString());
 				Console.WriteLine("");
@@ -244,7 +244,8 @@ namespace net.vieapps.TestLabs.WAMP
 
 			public override string GetProcedureUri(MethodInfo method)
 			{
-				return string.Format(base.GetProcedureUri(method), name);
+				var uri = base.GetProcedureUri(method);
+				return string.Format(uri, name);
 			}
 		}
 

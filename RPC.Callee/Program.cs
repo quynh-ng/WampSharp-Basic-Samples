@@ -32,7 +32,7 @@ namespace net.vieapps.TestLabs.WAMP
 
 				Console.WriteLine("Attempt to connect to " + endpoint + realm);
 
-				channel = (new DefaultWampChannelFactory()).CreateJsonChannel(endpoint, realm);
+				channel = (new DefaultWampChannelFactory()).CreateMsgpackChannel(endpoint, realm);
 				channel.RealmProxy.Monitor.ConnectionEstablished += (sender, arguments) => {
 					Console.WriteLine("Connection is established - Session ID:" + arguments.SessionId.ToString());
 					Console.WriteLine("");
@@ -106,10 +106,18 @@ namespace net.vieapps.TestLabs.WAMP
 			}
 		}
 
+		public abstract class DynamicUri : IDynamicUriRPC
+		{
+			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.{0}")]
+			public abstract Task<string> DoSomethingAsync();
+		}
+
 		public class DynamicUri1 : IDynamicUriRPC
+		//public class DynamicUri1 : DynamicUri
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.1")]
 			public Task<string> DoSomethingAsync()
+			//public override Task<string> DoSomethingAsync()
 			{
 				var say = "DYNAMIC (1) callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
@@ -118,9 +126,11 @@ namespace net.vieapps.TestLabs.WAMP
 		}
 
 		public class DynamicUri2 : IDynamicUriRPC
+		//public class DynamicUri2 : DynamicUri
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.2")]
 			public Task<string> DoSomethingAsync()
+			//public override Task<string> DoSomethingAsync()
 			{
 				var say = "DYNAMIC [2] callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
