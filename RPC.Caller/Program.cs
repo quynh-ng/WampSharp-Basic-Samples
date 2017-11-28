@@ -121,7 +121,7 @@ namespace net.vieapps.TestLabs.WAMP
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+				ShowError(ex);
 			}
 		}
 
@@ -137,29 +137,9 @@ namespace net.vieapps.TestLabs.WAMP
 				var val = await ErrorService.DoSomethingAsync();
 				Console.WriteLine(" Error Microservice: -> " + val);
 			}
-			catch (WampException ex)
-			{
-				var type = ex.GetType();
-				var msg = ex.Message;
-				var uri = ex.ErrorUri;
-				var json = "";
-				foreach (var info in ex.Arguments)
-					json += info is JObject && (info as JObject).Count > 0
-						? (info as JObject).ToString(Newtonsoft.Json.Formatting.Indented) + "\r\n"
-						: "";
-				Console.WriteLine("Error occurred while processing with remote Wamp RPC: " + msg + " [" + uri +  type.ToString() + "]" + "\r\n\r\n" + json);
-			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString() + "]" + "\r\n\r\n" + ex.StackTrace);
-				var exception = ex.InnerException;
-				var counter = 0;
-				while (exception != null)
-				{
-					counter++;
-					Console.WriteLine("Inner (" + counter + "): " + exception.Message + " [" + exception.GetType().ToString() + "]" + "\r\n\r\n" + exception.StackTrace);
-					exception = exception.InnerException;
-				}
+				ShowError(ex);
 			}
 		}
 
@@ -177,7 +157,7 @@ namespace net.vieapps.TestLabs.WAMP
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+				ShowError(ex);
 			}
 		}
 
@@ -194,7 +174,7 @@ namespace net.vieapps.TestLabs.WAMP
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+				ShowError(ex);
 			}
 		}
 
@@ -217,7 +197,7 @@ namespace net.vieapps.TestLabs.WAMP
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+					ShowError(ex);
 				}
 			else
 				try
@@ -229,8 +209,47 @@ namespace net.vieapps.TestLabs.WAMP
 				}
 				catch (Exception ex)
 				{
-					Console.WriteLine("Error occurred while processing: " + ex.Message + " [" + ex.GetType().ToString()+ "]" + "\r\n\r\n" + ex.StackTrace);
+					ShowError(ex);
 				}
+		}
+
+		static void ShowError(Exception exception)
+		{
+			if (exception is WampException)
+			{
+				var ex = exception as WampException;
+				var type = ex.GetType();
+				var msg = ex.Message;
+				var json = "";
+
+				if (ex.Arguments != null)
+					foreach (var info in ex.Arguments)
+						json += info is JObject && (info as JObject).Count > 0
+							? (info as JObject).ToString(Newtonsoft.Json.Formatting.Indented) + "\r\n"
+							: info is JValue && (info as JValue).Value != null
+								? (info as JValue).Value.ToString() + "\r\n"
+								: "";
+
+				if (ex.Details != null)
+					foreach (var info in ex.Details)
+						json += info.Value != null && info.Value is JObject && (info.Value as JObject).Count > 0
+							? (info.Value as JObject).ToString(Newtonsoft.Json.Formatting.Indented) + "\r\n"
+							: info.Value != null && info.Value is JValue && (info.Value as JValue).Value != null
+								? (info.Value as JValue).Value.ToString() + "\r\n"
+								: "";
+
+				Console.WriteLine("ERROR of wampsharp: " + ex.Message + " [" + ex.GetType().ToString() + "]");
+				Console.WriteLine("------\r\n" + exception.StackTrace);
+				Console.WriteLine("------\r\n" + json);
+			}
+			else
+			{
+				Console.WriteLine("ERROR: " + exception.Message + " [" + exception.GetType().ToString() + "]");
+				var bex = exception.GetBaseException();
+				if (bex != null)
+					Console.WriteLine("- Base: " + bex.Message + " [" + bex.GetType().ToString() + "]");
+				Console.WriteLine("------\r\n" + exception.StackTrace);
+			}
 		}
 
 		public class DynamicCalleeProxyInterceptor : CalleeProxyInterceptor

@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.RPC.Interfaces", "RPC.Interfaces\VIEApps.TestLabs.WAMP.RPC.Interfaces.csproj", "{66E6635E-A6B8-43FB-8B03-C9B3441E3112}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.RPC.Caller", "RPC.Caller\VIEApps.TestLabs.WAMP.RPC.Caller.csproj", "{74817D7B-26BF-4412-BCC7-7FD9723C2642}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.RPC.Callee", "RPC.Callee\VIEApps.TestLabs.WAMP.RPC.Callee.csproj", "{2B4AE323-5904-450B-9639-971EC28EAA81}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.Router", "Router\VIEApps.TestLabs.WAMP.Router.csproj", "{5FB3B510-CEC8-41CA-97A3-A0B386B74B94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.PubSub.Subscriber", "PubSub.Subscriber\VIEApps.TestLabs.WAMP.PubSub.Subscriber.csproj", "{EFFB70CE-75B3-42D2-B69C-DE412AD4C8F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VIEApps.TestLabs.WAMP.PubSub.Publisher", "PubSub.Publisher\VIEApps.TestLabs.WAMP.PubSub.Publisher.csproj", "{BADC54F7-159D-4E70-ABB8-9964F603FE96}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{66E6635E-A6B8-43FB-8B03-C9B3441E3112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66E6635E-A6B8-43FB-8B03-C9B3441E3112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66E6635E-A6B8-43FB-8B03-C9B3441E3112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66E6635E-A6B8-43FB-8B03-C9B3441E3112}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74817D7B-26BF-4412-BCC7-7FD9723C2642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74817D7B-26BF-4412-BCC7-7FD9723C2642}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74817D7B-26BF-4412-BCC7-7FD9723C2642}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74817D7B-26BF-4412-BCC7-7FD9723C2642}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B4AE323-5904-450B-9639-971EC28EAA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B4AE323-5904-450B-9639-971EC28EAA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B4AE323-5904-450B-9639-971EC28EAA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B4AE323-5904-450B-9639-971EC28EAA81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FB3B510-CEC8-41CA-97A3-A0B386B74B94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FB3B510-CEC8-41CA-97A3-A0B386B74B94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FB3B510-CEC8-41CA-97A3-A0B386B74B94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FB3B510-CEC8-41CA-97A3-A0B386B74B94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFFB70CE-75B3-42D2-B69C-DE412AD4C8F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFFB70CE-75B3-42D2-B69C-DE412AD4C8F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFFB70CE-75B3-42D2-B69C-DE412AD4C8F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFFB70CE-75B3-42D2-B69C-DE412AD4C8F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BADC54F7-159D-4E70-ABB8-9964F603FE96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BADC54F7-159D-4E70-ABB8-9964F603FE96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BADC54F7-159D-4E70-ABB8-9964F603FE96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BADC54F7-159D-4E70-ABB8-9964F603FE96}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D5BC4A8A-B517-4A4F-879F-56770B7E63A3}
+	EndGlobalSection
+EndGlobal

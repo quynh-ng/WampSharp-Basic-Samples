@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
+using Newtonsoft.Json.Linq;
+
 using WampSharp.V2;
 using WampSharp.V2.Rpc;
 using WampSharp.V2.Core.Contracts;
@@ -113,11 +115,9 @@ namespace net.vieapps.TestLabs.WAMP
 		}
 
 		public class DynamicUri1 : IDynamicUriRPC
-		//public class DynamicUri1 : DynamicUri
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.1")]
 			public Task<string> DoSomethingAsync()
-			//public override Task<string> DoSomethingAsync()
 			{
 				var say = "DYNAMIC (1) callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
@@ -126,11 +126,9 @@ namespace net.vieapps.TestLabs.WAMP
 		}
 
 		public class DynamicUri2 : IDynamicUriRPC
-		//public class DynamicUri2 : DynamicUri
 		{
 			[WampProcedure("net.vieapps.testlabs.rpc.dynamic.2")]
 			public Task<string> DoSomethingAsync()
-			//public override Task<string> DoSomethingAsync()
 			{
 				var say = "DYNAMIC [2] callee --> " + GetInfo();
 				Console.WriteLine("Got one call: " + say);
@@ -144,14 +142,38 @@ namespace net.vieapps.TestLabs.WAMP
 			public Task<string> DoSomethingAsync()
 			{
 				Console.WriteLine("Got one call of ErrSvc --> " + GetInfo());
+				try
+				{
+					throw new Exception("Got an error", new ApplicationException("Nothing to lose!!!!!"));
+				}
+				catch (Exception ex)
+				{
+					var message = ex.Message;
 
-				var details = new Dictionary<string, object>();
-				var arguments = new Dictionary<string, object>();
-				var argumentKeywords = new Dictionary<string, object>();
-				var message = "Error at RPC";
-				var ex = new ApplicationException("Nothing to lose!!!!!");
+					var details = new Dictionary<string, object>()
+					{
+						{ "0", ex.StackTrace }
+					};
 
-				return Task.FromException<string>(new WampRpcRuntimeException(details, arguments, argumentKeywords, message, new Exception("Got an error", ex)));
+					var counter = 0;
+					var inner = ex.InnerException;
+					while (inner != null)
+					{
+						counter++;
+						details.Add(counter.ToString(), inner.StackTrace);
+						inner = inner.InnerException;
+					}
+
+					var info = new JObject()
+					{
+						{ "ID", "ID" },
+						{ "Time", DateTime.Now }
+					};
+
+					return Task.FromException<string>(
+							new WampRpcRuntimeException(details, new Dictionary<string, object>(), new Dictionary<string, object>() { { "info", info } }, message, ex)
+						);
+				}
 			}
 		}
 
